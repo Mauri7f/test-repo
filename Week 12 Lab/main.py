@@ -1,33 +1,43 @@
 import pygame
 from pygame.locals import *
+import time
 
 
 class Snake:
-    def __init__(self, parent_screen):
-        self.parent_screen = parent_screen
+    def __init__(self, surface):
+        self.parent_screen = surface
         self.block = pygame.image.load("assets/block.jpg").convert()
         self.x = 100
         self.y = 100
+        self.direction = 'down'
+
+    def move_left(self):
+        self.direction = 'left'
+
+    def move_right(self):
+        self.direction = 'right'
+
+    def move_up(self):
+        self.direction = 'up'
+
+    def move_down(self):
+        self.direction = 'down'
 
     def draw(self):
         self.parent_screen.fill((110, 110, 5))
         self.parent_screen.blit(self.block, (self.x, self.y))
         pygame.display.flip()
 
-    def move_left(self):
-        self.x -= 10
-        self.draw()
+    def walk(self):
+        if self.direction == 'left':
+            self.x -= 10
+        if self.direction == 'right':
+            self.x += 10
+        if self.direction == 'up':
+            self.y -= 10
+        if self.direction == 'down':
+            self.y += 10
 
-    def move_right(self):
-        self.x += 10
-        self.draw()
-
-    def move_up(self):
-        self.y -= 10
-        self.draw()
-
-    def move_down(self):
-        self.y += 10
         self.draw()
 
 
@@ -35,7 +45,6 @@ class Game:
     def __init__(self):
         pygame.init()
         self.surface = pygame.display.set_mode((500, 500))
-        self.surface.fill((178, 193, 235))
         self.snake = Snake(self.surface)
         self.snake.draw()
 
@@ -62,6 +71,9 @@ class Game:
 
                 elif event.type == QUIT:
                     running = False
+
+            self.snake.walk()
+            time.sleep(0.2)
 
 
 if __name__ == "__main__":
