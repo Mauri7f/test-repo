@@ -9,10 +9,26 @@ BACKGROUND_COLOR = 129, 172, 227
 
 class Apple:
     def __init__(self, parent_screen):
-        self.image = pygame.image.load("assets/avocado.jpg").convert()
+        self.image = pygame.image.load("assets/apple.jpg").convert()
         self.parent_screen = parent_screen
         self.x = SIZE * 3
         self.y = SIZE * 3
+
+    def draw(self):
+        self.parent_screen.blit(self.image, (self.x, self.y))
+        pygame.display.flip()
+
+    def move(self):
+        self.x = random.randint(0, 24) * SIZE
+        self.y = random.randint(0, 19) * SIZE
+
+
+class Power:
+    def __init__(self, parent_screen):
+        self.image = pygame.image.load("assets/avocado.jpg").convert()
+        self.parent_screen = parent_screen
+        self.x = SIZE * 5
+        self.y = SIZE * 5
 
     def draw(self):
         self.parent_screen.blit(self.image, (self.x, self.y))
@@ -38,6 +54,9 @@ class Snake:
         self.x.append(-1)
         self.y.append(-1)
 
+    def increase_speed(self):
+        pass
+
     def move_left(self):
         self.direction = 'left'
 
@@ -51,12 +70,10 @@ class Snake:
         self.direction = 'down'
 
     def walk(self):
-        # update body
         for i in range(self.length-1, 0, -1):
             self.x[i] = self.x[i - 1]
             self.y[i] = self.y[i - 1]
 
-        # update head
         if self.direction == 'left':
             self.x[0] -= SIZE
         if self.direction == 'right':
@@ -78,7 +95,6 @@ class Game:
     def __init__(self):
         pygame.init()
         pygame.display.set_caption("Snake Game")
-
         pygame.mixer.init()
         self.play_background_music()
         self.surface = pygame.display.set_mode((1000, 800))
@@ -86,6 +102,8 @@ class Game:
         self.snake.draw()
         self.apple = Apple(self.surface)
         self.apple.draw()
+        self.power = Power(self.surface)
+        self.power.draw()
 
     def reset(self):
         self.snake = Snake(self.surface, 1)
@@ -109,6 +127,7 @@ class Game:
         self.render_background()
         self.snake.walk()
         self.apple.draw()
+        self.power.draw()
         self.display_score()
         pygame.display.flip()
 
@@ -118,6 +137,13 @@ class Game:
             pygame.mixer.Sound.play(sound)
             self.snake.increase_length()
             self.apple.move()
+
+        # snake colliding with power up
+        if self.is_collision(self.snake.x[0], self.snake.y[0], self.power.x, self.power.y):
+            sound = pygame.mixer.Sound("assets/power_up.mp3")
+            pygame.mixer.Sound.play(sound)
+            self.snake.increase_speed()
+            self.power.move()
 
         # snake colliding with itself
         for i in range(2, self.snake.length):
@@ -183,8 +209,7 @@ class Game:
                 pause = True
                 self.reset()
 
-            time.sleep(0.25)
-
+            time.sleep(.25)
 
 if __name__ == "__main__":
     game = Game()
